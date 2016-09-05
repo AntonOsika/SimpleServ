@@ -16,19 +16,25 @@ http.createServer((req, res) => {
   if (path[path.length - 1] !== '/') {
     fs.readFile(fsPath + path + '.md', 'utf8', (err, data) => {
       if (err) {
-        fs.stat(fsPath + path, (err, stats) => {
-          if (err || !stats.isDirectory()) {
-            res.writeHead(404);
-            res.end('404');
-          } else {
-            fs.stat(fsPath + path + '/.squash', (err, stats) => {
-              if (err) {
-                res.writeHead(303, { 'Location': path + '/' });
-                res.end();
+        fs.readFile(fsPath + path, 'utf8', (err, data) => {
+          if (err) {
+            fs.stat(fsPath + path, (err, stats) => {
+              if (err || !stats.isDirectory()) {
+                res.writeHead(404);
+                res.end('404');
               } else {
-                getSquash(path, res);
+                fs.stat(fsPath + path + '/.squash', (err, stats) => {
+                  if (err) {
+                    res.writeHead(303, { 'Location': path + '/' });
+                    res.end();
+                  } else {
+                    getSquash(path, res);
+                  }
+                });
               }
             });
+          } else {
+            res.end(data);
           }
         });
       } else {
@@ -88,8 +94,11 @@ function getFileIndex(path, res) {
     let html = '<ul>';
     for (let i = 0; i < files.length; i++) {
       if (files[i] !== '.no-index' && files[i] !== '.squash') {
-        let fileNameStripped = files[i].slice(0, -3);
-        html += `<li><a href="${path}${fileNameStripped}">${fileNameStripped}</a></li>`;
+        let fileName = files[i];
+        if (fileName.substr(-3) === '.md') {
+          fileName = fileName.slice(0, -3);
+        }
+        html += `<li><a href="${path}${fileName}">${fileName}</a></li>`;
       }
     }
     html += '</ul>';
