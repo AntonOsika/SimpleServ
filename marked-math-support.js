@@ -18,7 +18,7 @@
 
 var block = {
   newline: /^\n+/,
-  code: /^( {4}[^\n]+\n*)+/,
+  code: /^\n( {4}[^\n]+\n*)+/,
   fences: noop,
   hr: /^( *[-*_]){3,} *(?:\n+|$)/,
   heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
@@ -627,6 +627,9 @@ InlineLexer.prototype.output = function(src) {
         } else if (Array.isArray(delim) && delim.length === 2 && src.substr(0, delim[0].length) === delim[0]) {
           var idx = delim[0].length;
           while (true) {
+            if (idx > src.length) {
+              break;
+            }
             // Allow escaping closing delimiter
             if (delim[1].length === 1 && src.substr(idx, 2) === '\\' + delim[1]) {
               idx += 2;
@@ -1175,7 +1178,7 @@ function escape(html, encode) {
 }
 
 function unescape(html) {
-	// explicitly match decimal, hex, and named HTML entities 
+  // explicitly match decimal, hex, and named HTML entities
   return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/g, function(_, n) {
     n = n.toLowerCase();
     if (n === 'colon') return ':';

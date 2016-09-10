@@ -20,12 +20,13 @@ http.createServer((req, res) => {
           if (err) {
             fs.stat(fsPath + path, (err, stats) => {
               if (err || !stats.isDirectory()) {
-                res.writeHead(404);
+                res.statusCode = 404;
                 res.end('404');
               } else {
                 fs.stat(fsPath + path + '/.squash', (err, stats) => {
                   if (err) {
-                    res.writeHead(303, { 'Location': path + '/' });
+                    res.statusCode = 303;
+                    res.setHeader('Location', path + '/');
                     res.end();
                   } else {
                     getSquash(path, res);
@@ -34,12 +35,12 @@ http.createServer((req, res) => {
               }
             });
           } else {
-            res.setHeader('Content-Type', getMIME(path) + '; charset=utf-8');
+            res.setHeader('content-Type', getMIME(path) + '; charset=utf-8');
             res.end(data);
           }
         });
       } else {
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('content-Type', 'text/html; charset=utf-8');
         res.end(template.replace('[content]', md(data)));
       }
     });
@@ -50,7 +51,7 @@ http.createServer((req, res) => {
           if (err) {
             getFileIndex(path, res);
           } else {
-            res.writeHead(404);
+            res.statusCode = 404;
             res.end('404');
           }
         });
@@ -82,7 +83,7 @@ function md(text, headerShift) {
 function accumulateContent(path, res, cb) {
   fs.readdir(fsPath + path, (err, files) => {
     if (err) {
-      res.writeHead(404);
+      res.statusCode = 404;
       res.end('404');
     } else {
       files.sort().reverse();
