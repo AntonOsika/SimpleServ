@@ -41,7 +41,13 @@ http.createServer((req, res) => {
         });
       } else {
         res.setHeader('content-Type', 'text/html; charset=utf-8');
-        res.end(template.replace('[content]', md(data)));
+        let out = template;
+        const match = (/^<!--\s*title:\s*(.+?)\s*-->/).exec(data);
+        if (match) {
+          out = out.replace('<!-- [title] -->', `<title>${match[1]}</title>`);
+        }
+        out = out.replace('<!-- [content] -->', md(data));
+        res.end(out);
       }
     });
   } else {
@@ -56,7 +62,7 @@ http.createServer((req, res) => {
           }
         });
       } else {
-        res.end(template.replace('[content]', md(data)));
+        res.end(template.replace('<!-- [content] -->', md(data)));
       }
     });
   }
@@ -69,15 +75,14 @@ marked.setOptions({
 });
 
 function md(text, headerShift) {
-  if (headerShift) {
-    let renderer = new marked.Renderer();
-    renderer.heading = function (text, level) {
-      return `<h${level+headerShift}>${text}</h${level+headerShift}>`;
-    };
-    return marked(text, { renderer: renderer, smartypants: true });
-  } else {
-    return marked(text);
-  }
+  // if (headerShift) {
+  //   let renderer = new marked.Renderer();
+  //   renderer.heading = function (text, level) {
+  //     return `<h${level+headerShift}>${text}</h${level+headerShift}>`;
+  //   };
+  //   return marked(text, { renderer: renderer });
+  // }
+  return marked(text);
 }
 
 function accumulateContent(path, res, cb) {
@@ -87,7 +92,7 @@ function accumulateContent(path, res, cb) {
       res.end('404');
     } else {
       files.sort().reverse();
-      res.end(template.replace('[content]', cb(files)));
+      res.end(template.replace('<!-- [content] -->', cb(files)));
     }
   });
 }
