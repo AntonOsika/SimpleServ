@@ -1,7 +1,10 @@
 // This is a tweaked version of marked, to support math.
 //
+// The tweak solves the problem of underscores in $a_1b_2$
+// being rendered within <em>, causing MathJax to fail.
+//
 // Pull request:        https://github.com/chjj/marked/pull/799
-// This file on github: https://github.com/ViktorQvarfordt/marked/blob/6fb929d87805ff7a2781e43cc9f374f82912518a/lib/marked.js
+// This file on github: https://github.com/ViktorQvarfordt/marked/blob/master/lib/marked.js
 
 
 /**
