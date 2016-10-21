@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const http = require('http');
-const marked = require('./marked-math-support.js');
+const render = require('./render.js');
 
 const fsPath = process.argv[2][0] === '/' ? process.argv[2] : process.cwd() + '/' + process.argv[2];
 const port = process.argv[3] || 8000;
@@ -40,13 +40,8 @@ http.createServer((req, res) => {
           }
         });
       } else {
+        let out = render(data, true);
         res.setHeader('content-Type', 'text/html; charset=utf-8');
-        let out = template;
-        const match = (/^<!--\s*title:\s*(.+?)\s*-->/).exec(data);
-        if (match) {
-          out = out.replace('<!-- [title] -->', `<title>${match[1]}</title>`);
-        }
-        out = out.replace('<!-- [content] -->', md(data));
         res.end(out);
       }
     });
@@ -62,28 +57,15 @@ http.createServer((req, res) => {
           }
         });
       } else {
-        res.end(template.replace('<!-- [content] -->', md(data)));
+        let out = render(data, true);
+        res.setHeader('content-Type', 'text/html; charset=utf-8');
+        res.end(out);
       }
     });
   }
 
 }).listen(port, host, () => console.log(`Listening on ${host}:${port}`));
 
-
-marked.setOptions({
-  mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
-});
-
-function md(text, headerShift) {
-  // if (headerShift) {
-  //   let renderer = new marked.Renderer();
-  //   renderer.heading = function (text, level) {
-  //     return `<h${level+headerShift}>${text}</h${level+headerShift}>`;
-  //   };
-  //   return marked(text, { renderer: renderer });
-  // }
-  return marked(text);
-}
 
 function accumulateContent(path, res, cb) {
   fs.readdir(fsPath + path, (err, files) => {

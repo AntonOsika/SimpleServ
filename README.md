@@ -3,7 +3,13 @@
 
 ## Usage
 
+Start server
+
     node index.js <path-to-pages> <port> <host>
+
+Render markdown to stdout
+
+    node render.js <path-md-file>
 
 
 ## Features
