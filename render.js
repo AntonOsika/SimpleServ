@@ -1,12 +1,14 @@
+'use strict';
+
 const fs = require('fs');
 const marked = require('./marked-math-support.js');
+const mkToc = require('markdown-toc');
+const hljs = require('highlight.js');
 
 
-marked.setOptions({
-  mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
-});
-
-const template = fs.readFileSync(__dirname + '/template.html', 'utf8');
+const templateHtml = fs.readFileSync(__dirname + '/templates/template.html', 'utf8');
+const templateCss = fs.readFileSync(__dirname + '/templates/template2.css', 'utf8');
+const templateCssHljs = fs.readFileSync(__dirname + '/templates/hljs-github.css', 'utf8');
 
 const googleAnalyticsScript = `    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -18,29 +20,99 @@ const googleAnalyticsScript = `    <script>
     </script>`;
 
 
-function render(data, googleAnalytics) {
-  var out = template;
-  const match = (/^<!--\s*title:\s*(.+?)\s*-->/).exec(data);
-  if (match) {
-    out = out.replace('<!-- [title] -->', `<title>${match[1]}</title>`);
-  }
-  out = out.replace('<!-- [content] -->', marked(data));
-  if (googleAnalytics) {
-    out = out.replace('  </head>', googleAnalyticsScript + '\n\n  </head>');
-  }
-  return out;
+// Transform text to URL-friendly text. E.g. "Foo bar" -> "foo-bar".
+function slugify(str) {
+  return str.toLowerCase()
+            .replace(/[^\w]+/g, '-')
+            .replace(/-+$/, '')
+            .replace(/^-+/, '');
 }
 
-// function md(text, headerShift) {
-//   if (headerShift) {
-//     var renderer = new marked.Renderer();
-//     renderer.heading = function (text, level) {
-//       return `<h${level+headerShift}>${text}</h${level+headerShift}>`;
-//     };
-//     return marked(text, { renderer: renderer });
-//   }
-//   return marked(text);
-// }
+
+// Init marked
+const renderer = new marked.Renderer();
+
+renderer.heading = function(text, level, raw) {
+  return '<h' + level + ' id="' + this.options.headerPrefix + slugify(raw) + '">' + text + '</h' + level + '>\n';
+};
+
+let codeHighlightingUsed = false;
+
+marked.setOptions({
+  renderer: renderer,
+  langPrefix: '',
+  highlight: function (code, lang) {
+    if (lang) {
+      codeHighlightingUsed = true;
+      return hljs.highlight(lang, code).value;
+    }
+    // } else {
+    //   return hljs.highlightAuto(code).value;
+    // }
+  }
+});
+
+// For marked-math-support
+marked.setOptions({
+  mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
+});
+
+
+function render(text, googleAnalytics) {
+
+  // 1. Preprocess markdown text.
+
+  // 1.1 Insert table of contents.
+  const tocRegex = /<!--\s*toc\s*-->/;
+  const tocMatch = (tocRegex).exec(text);
+  if (tocMatch) {
+    const tocMd = mkToc(text, {
+      slugify: slugify
+    }).content;
+    text = text.replace(tocRegex, tocMd);
+  }
+
+  // 1.2. Insert custom includes
+  // let includeMatch;
+  // while (includeMatch = text.match('<<include +([^>]+)>>')) {
+  //   let fileContent = fs.readFileSync(expandTilde(includeMatch[1])).toString();
+  //   text = text.replace(includeMatch[0], () => fileContent); // Use a funciton to avoid $ substitution
+  // }
+
+  // 2. Generate HTML
+  let html = templateHtml;
+
+  // 2.1. Set html title tag from markdown preamble
+  const titleMatch = (/<!--\s*title:\s*(.+?)\s*-->/).exec(text);
+  if (titleMatch) {
+    html = html.replace('<!-- [title] -->', `<title>${titleMatch[1]}</title>`);
+  } else {
+    const firsth1Match = (/^#\s*([^\n]*)/m).exec(text);
+    html = html.replace('<!-- [title] -->', `<title>${firsth1Match[1]}</title>`);
+  }
+
+  // 2.4 Insert markdown content
+  // Replace &#39; and &#39; back to ' and ", marked messses this up, see https://github.com/chjj/marked/issues/269
+  // TODO: Fix this in my fork of markdown.
+  codeHighlightingUsed = false;
+  const htmlContent = marked(text).replace(/&#39;/g, "'").replace(/&quot;/, '"');
+  html = html.replace('<!-- [content] -->', htmlContent);
+
+  // 2.3. Insert CSS. This is factored out to easily swap styles.
+  let css = templateCss;
+  if (codeHighlightingUsed) {
+    css += templateCssHljs;
+  }
+  html = html.replace('<!-- [style] -->', `<style>${css}</style>`);
+
+  // 2.4 Insert google analytics code
+  if (googleAnalytics) {
+    html = html.replace('  </head>', googleAnalyticsScript + '\n\n  </head>');
+  }
+
+  return html;
+}
+
 
 module.exports = render;
 
@@ -53,3 +125,18 @@ if (!module.parent) {
     console.log('Specify file to htmlify');
   }
 }
+
+
+
+
+
+// function md(text, headerShift) {
+//   if (headerShift) {
+//     var renderer = new marked.Renderer();
+//     renderer.heading = function (text, level) {
+//       return `<h${level+headerShift}>${text}</h${level+headerShift}>`;
+//     };
+//     return marked(text, { renderer: renderer });
+//   }
+//   return marked(text);
+// }

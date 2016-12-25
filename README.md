@@ -11,6 +11,10 @@ Render markdown to stdout
 
     node render.js <path-md-file>
 
+Render several files
+
+    node build.js <src-dir> <dest-dir>
+
 
 ## Features
 

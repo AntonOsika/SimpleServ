@@ -3,12 +3,17 @@
 const fs = require('fs');
 const http = require('http');
 const render = require('./render.js');
+const marked = require('./marked-math-support.js');
 
 const fsPath = process.argv[2][0] === '/' ? process.argv[2] : process.cwd() + '/' + process.argv[2];
 const port = process.argv[3] || 8000;
 const host = process.argv[4] || '';
-const template = fs.readFileSync(__dirname + '/template.html', 'utf8');
+const templateHtml = fs.readFileSync(__dirname + '/templates/template.html', 'utf8');
+const templateCss  = fs.readFileSync(__dirname + '/templates/template.css', 'utf8');
 
+marked.setOptions({
+  mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
+});
 
 http.createServer((req, res) => {
 
@@ -74,7 +79,10 @@ function accumulateContent(path, res, cb) {
       res.end('404');
     } else {
       files.sort().reverse();
-      res.end(template.replace('<!-- [content] -->', cb(files)));
+      // TODO: Do this with render()
+      let html = templateHtml.replace('<!-- [content] -->', cb(files))
+                             .replace('<!-- [style] -->', `<style>${templateCss}</style>`);
+      res.end(html);
     }
   });
 }
@@ -102,7 +110,7 @@ function getSquash(path, res) {
     for (let i = 0; i < files.length; i++) {
       squashed += fs.readFileSync(fsPath + path + '/' + files[i], 'utf8');
     }
-    return md(squashed);
+    return marked(squashed);
   });
 }
 
