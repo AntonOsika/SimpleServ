@@ -88,7 +88,9 @@ function render(text, googleAnalytics) {
     html = html.replace('<!-- [title] -->', `<title>${titleMatch[1]}</title>`);
   } else {
     const firsth1Match = (/^#\s*([^\n]*)/m).exec(text);
-    html = html.replace('<!-- [title] -->', `<title>${firsth1Match[1]}</title>`);
+    if (firsth1Match) {
+      html = html.replace('<!-- [title] -->', `<title>${firsth1Match[1]}</title>`);
+    }
   }
 
   // 2.4 Insert markdown content
