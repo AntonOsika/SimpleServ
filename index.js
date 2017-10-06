@@ -87,7 +87,7 @@ http.createServer((req, res) => {
 
   function getListing(cb) {
     fs.access(fsPath + path + '.no-index', err => {
-      if (err && err.code === 'ENOENT') {
+      if (err) {
         cb(true)
         getFileIndex(path, res)
       } else {
@@ -107,22 +107,25 @@ http.createServer((req, res) => {
       if (err) return cb(false)
       cb(true)
       res.statusCode = 303
-      res.setHeader('Location', data)
+      res.setHeader('Location', data.trim())
       res.end()
     })
   }
 
   function redirectWithoutTrailingSlash(cb) {
-    cb(true)
-    res.statusCode = 303
-    res.setHeader('Location', path.substr(0, path.length - 1))
-    res.end()
+    fs.access(fsPath + path, err => {
+      if (!err) return cb(false)
+      cb(true)
+      res.statusCode = 303
+      res.setHeader('Location', path.substr(0, path.length - 1))
+      res.end()
+    })
   }
 
   if (path[path.length - 1] !== '/') {
     async.series([getRaw, getMd, getHtml, getRedirect, getSquashed, get404])
   } else {
-    async.series([getIndexMd, getIndexHtml, getListing, redirectWithoutTrailingSlash])
+    async.series([redirectWithoutTrailingSlash, getIndexMd, getIndexHtml, getListing, get404])
   }
 
 }).listen(port, host, () => console.log(`Listening on ${host}:${port}`))
