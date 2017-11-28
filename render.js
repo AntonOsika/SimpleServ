@@ -1,23 +1,15 @@
-'use strict';
+'use strict'
 
-const fs = require('fs');
-const marked = require('./marked-math-support.js');
-const mkToc = require('markdown-toc');
-const hljs = require('highlight.js');
+const fs = require('fs')
+const marked = require('./marked-math-support.js')
+const mkToc = require('markdown-toc')
+const hljs = require('highlight.js')
 
-
-const templateHtml = fs.readFileSync(__dirname + '/templates/template.html', 'utf8');
-const templateCss = fs.readFileSync(__dirname + '/templates/template2.css', 'utf8');
-const templateCssHljs = fs.readFileSync(__dirname + '/templates/hljs-github.css', 'utf8');
-
-const googleAnalyticsScript = `    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ga('create', 'UA-83637895-1', 'auto');
-      ga('send', 'pageview');
-    </script>`;
+const templateHtml = fs.readFileSync(__dirname + '/template.html', 'utf8')
+let googleAnalyticsScript
+try {
+  googleAnalyticsScript = fs.readFileSync(__dirname + '/googleAnalyticsScript.html', 'utf8')
+} catch (err) {}
 
 
 // Transform text to URL-friendly text. E.g. "Foo bar" -> "foo-bar".
@@ -25,106 +17,99 @@ function slugify(str) {
   return str.toLowerCase()
             .replace(/[^\w]+/g, '-')
             .replace(/-+$/, '')
-            .replace(/^-+/, '');
+            .replace(/^-+/, '')
 }
 
 
 // Init marked
-const renderer = new marked.Renderer();
+const renderer = new marked.Renderer()
 
 renderer.heading = function(text, level, raw) {
-  return '<h' + level + ' id="' + this.options.headerPrefix + slugify(raw) + '">' + text + '</h' + level + '>\n';
-};
-
-let codeHighlightingUsed = false;
+  return `<h${level} id="${this.options.headerPrefix + slugify(raw)}">${text}</h${level}>\n`
+}
 
 marked.setOptions({
   renderer: renderer,
   langPrefix: '',
   highlight: function (code, lang) {
     if (lang) {
-      codeHighlightingUsed = true;
-      return hljs.highlight(lang, code).value;
+      return hljs.highlight(lang, code).value
     }
     // } else {
-    //   return hljs.highlightAuto(code).value;
+    //   return hljs.highlightAuto(code).value
     // }
   }
-});
+})
 
 // For marked-math-support
 marked.setOptions({
   mathDelimiters: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]'], ['$$', '$$'], 'beginend']
-});
+})
 
 
-function render(text, googleAnalytics) {
-
-  // 1. Preprocess markdown text.
-
-  // 1.1 Insert table of contents.
-  const tocRegex = /<!--\s*toc\s*-->/;
-  const tocMatch = (tocRegex).exec(text);
+function insertToc(text) {
+  const tocRegex = /<!--\s*toc\s*-->/
+  const tocMatch = tocRegex.exec(text)
   if (tocMatch) {
     const tocMd = mkToc(text, {
       slugify: slugify
-    }).content;
-    text = text.replace(tocRegex, tocMd);
+    }).content
+    text = text.replace(tocRegex, tocMd)
   }
-
-  // 1.2. Insert custom includes
-  // let includeMatch;
-  // while (includeMatch = text.match('<<include +([^>]+)>>')) {
-  //   let fileContent = fs.readFileSync(expandTilde(includeMatch[1])).toString();
-  //   text = text.replace(includeMatch[0], () => fileContent); // Use a funciton to avoid $ substitution
-  // }
-
-  // 2. Generate HTML
-  let html = templateHtml;
-
-  // 2.1. Set html title tag from markdown preamble
-  const titleMatch = (/<!--\s*title:\s*(.+?)\s*-->/).exec(text);
-  if (titleMatch) {
-    html = html.replace('<!-- [title] -->', `<title>${titleMatch[1]}</title>`);
-  } else {
-    const firsth1Match = (/^#\s*([^\n]*)/m).exec(text);
-    if (firsth1Match) {
-      html = html.replace('<!-- [title] -->', `<title>${firsth1Match[1]}</title>`);
-    }
-  }
-
-  // 2.4 Insert markdown content
-  // Replace &#39; and &#39; back to ' and ", marked messses this up, see https://github.com/chjj/marked/issues/269
-  // TODO: Fix this in my fork of markdown.
-  codeHighlightingUsed = false;
-  const htmlContent = marked(text).replace(/&#39;/g, "'").replace(/&quot;/, '"');
-  html = html.replace('<!-- [content] -->', htmlContent);
-
-  // 2.3. Insert CSS. This is factored out to easily swap styles.
-  let css = templateCss;
-  if (codeHighlightingUsed) {
-    css += templateCssHljs;
-  }
-  html = html.replace('<!-- [style] -->', `<style>${css}</style>`);
-
-  // 2.4 Insert google analytics code
-  if (googleAnalytics) {
-    html = html.replace('  </head>', googleAnalyticsScript + '\n\n  </head>');
-  }
-
-  return html;
+  return text
 }
 
 
-module.exports = render;
+function insertCustomIncludes(text) {
+  let includeMatch
+  while (includeMatch = text.match('<<include +([^>]+)>>')) {
+    let fileContent = fs.readFileSync(expandTilde(includeMatch[1])).toString()
+    text = text.replace(includeMatch[0], () => fileContent) // Use a funciton to avoid $ substitution by replace
+  }
+  return text
+}
+
+function setTitle(text, html) {
+  const titleMatch = (/<!--\s*title:\s*(.+?)\s*-->/).exec(text)
+  let title
+  if (titleMatch) {
+    title = titleMatch[1]
+  } else {
+    const firsth1Match = (/^#\s*([^\n]*)/m).exec(text)
+    if (firsth1Match) {
+      title = firsth1Match[1]
+    }
+  }
+  html = html.replace('<!-- [title] -->', `<title>${title}</title>`)
+  return html
+}
+
+function render(text) {
+  text = insertToc(text)
+  // text = insertCustomIncludes(text)
+  let html = templateHtml
+  html = setTitle(text, html)
+
+  // Replace &#39; and &#39; back to ' and ", marked messses this up, see https://github.com/chjj/marked/issues/269
+  const htmlContent = marked(text).replace(/&#39;/g, "'").replace(/&quot;/, '"')
+  html = html.replace('<!-- [content] -->', htmlContent);
+
+  if (googleAnalyticsScript) {
+    html = html.replace('  </head>', googleAnalyticsScript + '\n\n  </head>')
+  }
+
+  return html
+}
+
+
+module.exports = render
 
 if (!module.parent) {
-  const path = process.argv[2];
+  const path = process.argv[2]
   if (path) {
-    console.log('<!-- Generated by https://github.com/ViktorQvarfordt/lightweight-markdown-server -->');
-    console.log(render(fs.readFileSync(path, 'utf8')));
+    console.log(render(fs.readFileSync(path, 'utf8')))
   } else {
-    console.log('Specify file to htmlify');
+    console.log('Specify file to htmlify')
   }
 }
 
@@ -134,11 +119,11 @@ if (!module.parent) {
 
 // function md(text, headerShift) {
 //   if (headerShift) {
-//     var renderer = new marked.Renderer();
+//     var renderer = new marked.Renderer()
 //     renderer.heading = function (text, level) {
-//       return `<h${level+headerShift}>${text}</h${level+headerShift}>`;
-//     };
-//     return marked(text, { renderer: renderer });
+//       return `<h${level+headerShift}>${text}</h${level+headerShift}>`
+//     }
+//     return marked(text, { renderer: renderer })
 //   }
-//   return marked(text);
+//   return marked(text)
 // }

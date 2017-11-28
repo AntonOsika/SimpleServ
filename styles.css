@@ -1,33 +1,47 @@
-@import url(https://fonts.googleapis.com/css?family=Inconsolata);
-a { color: #05a; text-decoration: none; }
-a:hover, a:focus { text-decoration: underline; }
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:400,400i,700,700i');
+
 body {
   max-width: 800px;
   margin: 0 auto;
   padding: 10px;
-  font-size: 24px;
-  font-family: 'Inconsolata', 'Monospace';
+  font-family: 'Roboto', sans-serif;
   background-color: #fff;
   color: #000;
   margin-bottom: 50px;
+  font-size: 16px;
 }
-h1, h2, h3, h4, h5, h6 {
-  font-weight: normal;
+
+.content {
+  margin: 40px auto 0 auto;
+  max-width: 800px;
 }
+
+a {
+  color: #0366d6;
+  text-decoration:none;
+}
+
+a:hover, a:focus {
+  color: #0366d6;
+  text-decoration:underline;
+}
+
 hr {
   border: none;
   height: 1px;
   background-color: #000;
 }
+
+li {
+  margin-top: 0.3em;
+}
+
 .hidden-link {
   color: inherit;
   text-decoration: none;
 }
-@media (max-width: 800px) {
-  body {
-    font-size: 18px;
-  }
-}
+
 blockquote {
   padding: 0 1em;
   color: #777;
@@ -35,81 +49,10 @@ blockquote {
   margin: 0;
 }
 
-
-/* @import url(http://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic); */
-/*
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Open Sans Light'), local('OpenSans-Light'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/DXI1ORHCpsQm3Vp6mXoaTXhCUOGz7vYGh680lGh-uXM.woff) format('woff');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Open Sans'), local('OpenSans'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  font-weight: 400;
-  src: local('Open Sans Light Italic'), local('OpenSansLight-Italic'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/PRmiXeptR36kaC0GEAetxh_xHqYgAV9Bl_ZQbYUxnQU.woff) format('woff');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  font-weight: 700;
-  src: local('Open Sans Italic'), local('OpenSans-Italic'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/xjAJXh38I15wypJXxuGMBobN6UDyHWBl620a-IRfuBk.woff) format('woff');
-}
-*/
-
-/*html { position: relative; min-height: 100%; font-size:100%; }*/
-/*
-body { margin: 0 auto 8rem auto; padding:0 1em; max-width:40em;
-       font-family:'Open Sans'; color:#333; }
-*/
-body {
-  /*font-family: 'Open Sans';*/
-  font-family: 'Inconsolata';
-  font-size: 16px;
-  color: #000;
-}
-
-h1, h2, h3, h4, h5, h6 { font-weight: 300; }
+h1, h2, h3, h4, h5, h6 { font-weight: normal; }
 h1 { font-size: 37px; }
 h2 { font-size: 32px; }
 h3 { font-size: 26px; }
-
-a { color:#0088cc; text-decoration:none; }
-a:hover, a:focus { color:#005580; text-decoration:underline; }
-
-/* The font is so thick that it needs to be brighter to fit in. */
-/*.MathJax { color: #444; }*/
-
-.content {
-  margin: 40px auto 0 auto;
-  max-width: 800px;
-}
-
-/*.article-title {
-  font-size: 275%;
-  font-weight: 300;
-  font-family: inherit;
-  outline: none;
-  margin: 2rem 0 1rem 0;
-  border: none;
-  border-bottom: 1px solid #eee;
-  width: 100%;
-}
-.article-title:after {
-  position: absolute;
-  font-size: 12px;
-  right: 0;
-  bottom: -2rem;
-  color: #aaa;
-}
-*/
 
 .date {
   margin-top: -1rem;
@@ -163,12 +106,9 @@ a:hover, a:focus { color:#005580; text-decoration:underline; }
 
 /* - STYLING CODE - */
 
-/*@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic,700italic);*/
-
 code {
   color: inherit;
-  /* font-family: 'Ubuntu Mono', monospace; */
-  font-family: 'Inconsolata', monospace;
+  font-family: 'Roboto Mono', monospace;
   font-size: 14px;
   padding: 2px 3px;
 }
@@ -182,15 +122,12 @@ pre code {
   border: none;
 }
 pre {
-  line-height: 1;
   padding: 10px;
   overflow: auto;
 }
 pre, code {
   background-color: #fcfcfc;
   border: 1px solid #eee;
-  /*border: 1px solid #e1e1e8;*/
-  border-radius: 5px;
 }
 pre, pre code {
   white-space: pre;
@@ -234,3 +171,144 @@ hr { border:0; height:1px;
    }
 
 /* END TESTING */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+.hljs {
+  display: block;
+  padding: 0.5em;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.hljs-comment,
+.hljs-template_comment,
+.diff .hljs-header,
+.hljs-javadoc {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.css .rule .hljs-keyword,
+.hljs-winutils,
+.javascript .hljs-title,
+.nginx .hljs-title,
+.hljs-subst,
+.hljs-request,
+.hljs-status {
+  color: #333;
+  font-weight: bold;
+}
+
+.hljs-number,
+.hljs-hexcolor,
+.ruby .hljs-constant {
+  color: #099;
+}
+
+.hljs-string,
+.hljs-tag .hljs-value,
+.hljs-phpdoc,
+.tex .hljs-formula {
+  color: #d14;
+}
+
+.hljs-title,
+.hljs-id,
+.coffeescript .hljs-params,
+.scss .hljs-preprocessor {
+  color: #900;
+  font-weight: bold;
+}
+
+.javascript .hljs-title,
+.lisp .hljs-title,
+.clojure .hljs-title,
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-class .hljs-title,
+.haskell .hljs-type,
+.vhdl .hljs-literal,
+.tex .hljs-command {
+  color: #458;
+  font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-tag .hljs-title,
+.hljs-rules .hljs-property,
+.django .hljs-tag .hljs-keyword {
+  color: #000080;
+  font-weight: normal;
+}
+
+.hljs-attribute,
+.hljs-variable,
+.lisp .hljs-body {
+  color: #008080;
+}
+
+.hljs-regexp {
+  color: #009926;
+}
+
+.hljs-symbol,
+.ruby .hljs-symbol .hljs-string,
+.lisp .hljs-keyword,
+.tex .hljs-special,
+.hljs-prompt {
+  color: #990073;
+}
+
+.hljs-built_in,
+.lisp .hljs-title,
+.clojure .hljs-built_in {
+  color: #0086b3;
+}
+
+.hljs-preprocessor,
+.hljs-pragma,
+.hljs-pi,
+.hljs-doctype,
+.hljs-shebang,
+.hljs-cdata {
+  color: #999;
+  font-weight: bold;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.diff .hljs-change {
+  background: #0086b3;
+}
+
+.hljs-chunk {
+  color: #aaa;
+}
