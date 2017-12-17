@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "async": "^2.5.0",
+    "ejs": "^2.5.7",
     "highlight.js": "^9.9.0",
     "markdown-toc": "^1.0.2"
   }
