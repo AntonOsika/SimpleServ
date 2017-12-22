@@ -10,7 +10,7 @@ Primarily developed as the server for [viktorqvarfordt.com](http://viktorqvarfor
 Start server:
 
 ```
-node index.js <path-to-pages> <port> <host>
+node server.js <path-to-pages> <port> <host>
 ```
 
 You'll need to style your markdown-rendered html (have a look at `template.html`), I use [this](http://viktorqvarfordt.com/assets/styles-md.css) css file.
