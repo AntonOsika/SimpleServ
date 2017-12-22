@@ -53,3 +53,9 @@ Use native `async/await` rather than [async](https://github.com/caolan/async/).
 https://github.com/chjj/marked/pull/799
 
 https://github.com/chjj/marked/commit/f0fd2644ae96179b3252431e8aaa53d9d5b0ee94
+
+
+### Something fishy with dollar sign followed by single quote inside code
+
+Having `$'` inside a raw block will break the markdown renderer. Probably a bug in [marked](https://github.com/chjj/marked).
+

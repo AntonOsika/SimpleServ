@@ -170,7 +170,7 @@ function accumulateContent(reqPath, res, cb) {
       res.statusCode = 404
       res.end('404')
     } else {
-      files.sort().reverse()
+      files.sort()
       const html = cb(files)
       res.end(html)
     }
